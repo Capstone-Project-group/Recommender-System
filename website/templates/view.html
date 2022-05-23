@@ -1,0 +1,130 @@
+{% extends "base.html" %} {% block title %}Anime{% endblock title %} 
+
+{% block content %}
+<br />
+<h1 style="text-align: center">Your Page</h1>
+<br/>
+<br/>
+<div>
+    <!-- Recommendations -->
+    <h3 style="text-align: center">Recommendation History</h3>
+    {% if logs|length  == 0 %}
+
+    <image height="80%" style="position: absolute; left: 0; bottom: 0" src="{{url_for('static',filename = 'hand.png')}}"></image>
+    <p style="position: absolute; left: 50%; bottom: 50%" > <small>it's empty yo</small> </p>
+
+    {% else %}
+    <div height=30%>
+    <pre style="border-radius: 3pt; border: 1px lightgrey solid; height:400px; overflow-y:auto" >
+        {% for log in logs %}
+            {{ log.date.strftime("%A %B %d, %Y") }} {% for name in log.data.replace('[', '').replace(']', '').split(', ') %}
+                                    - {{ name.replace("'", "") }} {% endfor %}
+        {% endfor %}
+    </pre>
+    </div>  
+    <br />
+    
+    <!-- Favorites -->
+    <h3 style="text-align: center">Favorites List</h3>
+        <!-- Lists Favorites -->
+        <ul class="list-group list-group-flush" id="favs">
+            {% for fav in favs %}
+                <li class="list-group-item">
+                    {{ fav.data }}
+                    <!-- Deletes Favorite -->
+                    <button type="button" class="close" onClick="deleteNote({{ fav.id }})">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </li>
+            {% endfor %}
+        </ul>
+    <br />
+    <!-- Add to Favorites -->
+    <form method="POST" action="/view">
+        <input name="fav" id="fav" class="form-control" />
+        <br/>
+        <div align="center">
+            <button type="submit" class="btn btn-secondary">Enter</button>
+        </div>
+        <br/>
+        <br/>
+    </form>
+     <!-- Rate the anime -->
+     <h3 style="text-align: center">Give a Rating</h3>
+
+     <form method="POST" action="/rate">
+        <input name="anime" id="anime" class="form-control" />
+        <select name="rating" id="rating" class="form-control"> 
+            <option>1</option>
+            <option>2</option>
+            <option>3</option>
+            <option>4</option>
+            <option>5</option>
+            <option>6</option>
+            <option>7</option>
+            <option>8</option>
+            <option>9</option>
+            <option>10</option>
+        </select>
+        <br/>
+        <div align="center">
+            <button type="submit" class="btn btn-secondary">Enter</button>
+        </div>
+        <br/>
+        <br/>
+    </form>
+
+    <div id="accordion" role="tablist" aria-multiselectable="true" class="card-collapse">
+        <div class="card card-plain">
+            <div class="card-header" role="tab" id="headingOne">
+                <a style="text-decoration:none; color:black" data-toggle="collapse" data-parent="#accordion" href="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                    See Past Ratings
+                </a>
+
+                <div id="collapseOne" class="collapse" role="tabpanel" aria-labelledby="headingOne">
+                    <pre class="card-body">
+                    {% for rating in ratings %}
+        {{ rating.rating }}: {{ rating.anime.name }} {% endfor %}
+                    </pre>
+                </div>
+            </div>
+        </div>
+    </div>
+    <br/>
+    <br/>
+
+    {% endif %} 
+</div> 
+{% endblock %}
+
+{% block header %}
+<script>
+    $( function() {
+      var availableTags = [
+          {% for name in anime %}
+              "{{name}}",
+          {% endfor %}
+      ];
+      $( "#fav , #anime" ).autocomplete({
+        source: availableTags, 
+        minLength: 3
+      });
+    } );
+
+    function deleteNote(id){
+        fetch("/view", {
+            method: "DELETE",
+            body: JSON.stringify({
+                favid: id
+            }),
+            headers:{
+                "Content-type": "application/json"
+            }
+        }).then(
+            response=>{
+                location.reload()
+            }
+        )
+    }
+</script>
+{% endblock %}

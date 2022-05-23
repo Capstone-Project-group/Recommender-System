@@ -1,0 +1,17 @@
+{% extends "base.html" %} {% block title %}Anime{% endblock title %}
+
+{% block content %}
+<br />
+<h1 style="text-align:center">Here's Your Recommendation</h1>
+<br />
+
+<pre style="border:4px black solid">
+    {% for anime in animelist %}
+    {{ anime }}
+    {% endfor %}
+</pre>
+
+<div style="text-align:center">
+<a class="btn btn-secondary" style="text-align:center; text-decoration:none; color:black" href="/view">View All Recommendations</a>
+</div>
+{% endblock %}
